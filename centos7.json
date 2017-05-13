@@ -1,0 +1,61 @@
+{
+  "variables": {
+    "iso": "http://ftp.rezopole.net/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1611.iso",
+    "checksum": "27bd866242ee058b7a5754e83d8ee8403e216b93d130d800852a96f41c34d86a",
+    "vcenter_host": "",
+    "vcenter_username": "",
+    "vcenter_password": ""
+  },
+  "builders": [
+    {
+    "type": "vmware-iso",
+	  "format": "vmx",
+	  "vmx_data": {
+        "cpuid.coresPerSocket": "1",
+        "memsize": "2048",
+        "numvcpus": "1",
+        "guestOS": "rhel7-64",
+        "ethernet0.virtualDev": "vmxnet3"
+      },
+      "headless": true,
+      "http_directory": "http",
+      "version": 11,
+      "iso_url": "{{ user `iso` }}",
+      "iso_checksum": "{{ user `checksum` }}",
+      "iso_checksum_type": "sha256",
+      "vm_name": "T_CENTOS7-{{isotime \"2006-01-02\"}}",
+      "guest_os_type": "centos-64",
+      "ssh_username": "root",
+      "ssh_password": "P@ssword1",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "600s",
+      "disk_size": "8192",
+      "boot_command": [
+        "<tab> text ks=http://10.100.10.75:{{ .HTTPPort }}/ks-centos7.cfg<enter><wait>"
+      ],
+      "shutdown_command": "shutdown -P now"
+    }
+  ],
+  "provisioners": [
+  {
+      "type": "shell",
+      "script": "scripts/centos7-postinstall.sh"
+  }
+  ],
+  "post-processors": [
+    {
+      "type": "vsphere",
+      "cluster": "CLUSTER-POC",
+	  "datacenter": "GOINGUP",
+	  "datastore": "NFS-NAS1-VOL1",
+	  "host": "{{user `vcenter_host`}}",
+	  "username": "{{ user `vcenter_username`}}",
+	  "password": "{{ user `vcenter_password`}}",
+	  "vm_name": "T_CENTOS7-{{isotime \"2006-01-02\"}}",
+	  "vm_folder": "_TEMPLATES",
+	  "vm_network": "LAN-ENVL1",
+          "insecure": "true",
+          "overwrite": "true"
+    }
+  ]
+}

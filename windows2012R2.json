@@ -1,0 +1,73 @@
+{
+  "builders": [
+    {
+      "type": "vmware-iso",
+      "iso_url": "{{user `iso_url`}}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "headless": true,
+      "boot_wait": "2m",
+      "ssh_username": "vagrant",
+      "ssh_password": "vagrant",
+      "ssh_wait_timeout": "6h",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "guest_os_type": "windows8srv-64",
+      "tools_upload_flavor": "windows",
+      "disk_size": 61440,
+      "vnc_port_min": 5906,
+      "vnc_port_max": 5906,
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./scripts/windows/microsoft-updates.bat",
+        "./scripts/windows/win-updates.ps1",
+        "./scripts/windows/openssh.ps1"
+      ],
+      "vmx_data": {
+        "RemoteDisplay.vnc.enabled": "false",
+        "RemoteDisplay.vnc.port": "5900",
+        "memsize": "4096",
+        "numvcpus": "2",
+        "scsi0.virtualDev": "lsisas1068"
+      }
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "remote_path": "/tmp/script.bat",
+      "execute_command": "{{.Vars}} cmd /c C:/Windows/Temp/script.bat",
+      "scripts": [
+        "./scripts/windows/vm-guest-tools.bat",
+        "./scripts/windows/enable-rdp.bat",
+        "./scripts/windows/compile-dotnet-assemblies.bat",
+        "./scripts/windows/disable-auto-logon.bat",
+        "./scripts/windows/compact.bat"
+      ]
+    }
+  ],
+  "post-processors": [
+    {
+      "type": "vsphere",
+      "cluster": "CLUSTER-POC",
+      "datacenter": "GOINGUP",
+      "datastore": "NFS-NAS1-VOL1",
+	 "host": "{{user `vcenter_host`}}",
+	  "username": "{{ user `vcenter_username`}}",
+	  "password": "{{ user `vcenter_password`}}",
+          "vm_name": "T-WINDOWS-2012R2-{{isotime \"2006-01-02\"}}",
+          "vm_folder": "_TEMPLATES",
+          "vm_network": "LAN-ENVL1",
+          "insecure": "true"
+    }
+  ],
+  "variables": {
+    "iso_url": "http://download.microsoft.com/download/6/2/A/62A76ABB-9990-4EFC-A4FE-C7D698DAEB96/9600.16384.WINBLUE_RTM.130821-1623_X64FRE_SERVER_EVAL_EN-US-IRM_SSS_X64FREE_EN-US_DV5.ISO",
+    "iso_checksum_type": "md5",
+    "iso_checksum": "458ff91f8abc21b75cb544744bf92e6a",
+    "autounattend": "./Autounattend.xml",
+	"vcenter_host": "",
+    "vcenter_username": "",
+    "vcenter_password": ""
+  }
+}
+
