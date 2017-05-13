@@ -1,0 +1,89 @@
+{
+  "variables": {
+    "iso": "http://de.releases.ubuntu.com/xenial/ubuntu-16.04.2-server-amd64.iso",
+    "checksum": "737ae7041212c628de5751d15c3016058b0e833fdc32e7420209b76ca3d0a535",
+	"vcenter_host": "",
+    "vcenter_username": "",
+    "vcenter_password": ""
+  },
+  "builders": [
+    {
+    "type": "vmware-iso",
+          "format": "vmx",
+          "vmx_data": {
+        "cpuid.coresPerSocket": "1",
+        "memsize": "2048",
+        "numvcpus": "2",
+        "guestOS": "ubuntu-64",
+        "ethernet0.virtualDev": "vmxnet3"
+      },
+      "headless": true,
+      "http_directory": "http",
+      "iso_url": "{{ user `iso` }}",
+      "iso_checksum": "{{ user `checksum` }}",
+      "iso_checksum_type": "sha256",
+      "vm_name": "T-UBUNTU-16.04-{{isotime \"2006-01-02\"}}",
+      "guest_os_type": "ubuntu-64",
+      "ssh_username": "administrator",
+      "ssh_password": "packer",
+      "ssh_port": 22,
+      "ssh_wait_timeout": "600s",
+      "disk_size": "8192",
+      "boot_command": [
+        "<enter><wait><f6><esc><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+        "/install/vmlinuz<wait>",
+        " auto<wait>",
+        " console-setup/ask_detect=false<wait>",
+        " console-setup/layoutcode=us<wait>",
+        " console-setup/modelcode=pc105<wait>",
+        " debconf/frontend=noninteractive<wait>",
+        " debian-installer=en_US<wait>",
+        " fb=false<wait>",
+        " initrd=/install/initrd.gz<wait>",
+        " kbd-chooser/method=us<wait>",
+        " keyboard-configuration/layout=USA<wait>",
+        " keyboard-configuration/variant=USA<wait>",
+        " locale=en_US<wait>",
+        " netcfg/get_domain=vm<wait>",
+        " netcfg/get_hostname=vagrant<wait>",
+        " grub-installer/bootdev=/dev/sda<wait>",
+        " noapic<wait>",
+        " preseed/url=http://10.100.10.75:{{ .HTTPPort }}/ubuntu-16-04.cfg",
+	" -- <wait>",
+        "<enter><wait>"
+      ],
+      "shutdown_command": "sudo shutdown -P now"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "execute_command": "echo 'packer' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/ubuntu-sudo.sh"
+    },
+    {
+      "type": "shell",
+      "execute_command": "{{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "script": "scripts/ubuntu-cleanup.sh"
+    }    
+  ],
+  "post-processors": [
+    {
+      "type": "vsphere",
+      "cluster": "CLUSTER-POC",
+      "datacenter": "GOINGUP",
+      "datastore": "NFS-NAS1-VOL1",
+	 "host": "{{user `vcenter_host`}}",
+	  "username": "{{ user `vcenter_username`}}",
+	  "password": "{{ user `vcenter_password`}}",
+          "vm_name": "T-UBUNTU-16.04-{{isotime \"2006-01-02\"}}",
+          "vm_folder": "_TEMPLATES",
+          "vm_network": "LAN-ENVL1",
+          "insecure": "true"
+    }
+  ]
+}
+
