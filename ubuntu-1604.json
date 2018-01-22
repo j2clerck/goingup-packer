@@ -61,7 +61,7 @@
   "provisioners": [
     {
       "type": "shell",
-      "execute_command": "echo 'packer' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
+      "execute_command": "echo 'P@ssword1' | {{.Vars}} sudo -S -E bash '{{.Path}}'",
       "script": "scripts/ubuntu-sudo.sh"
     },
     {

@@ -1,6 +1,6 @@
 #!/bin/bash -eux
 
-# Add vagrant user to sudoers.
+# Add administrator user to sudoers.
 echo "administrator        ALL=(ALL)       NOPASSWD: ALL" >> /etc/sudoers
 sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
 
