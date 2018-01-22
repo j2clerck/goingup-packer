@@ -13,7 +13,7 @@
       "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
       "guest_os_type": "windows8srv-64",
       "tools_upload_flavor": "windows",
-      "vm_name": "T-WINDOWS-2012R2-{{isotime \"2006-01-02\"}}",
+      "vm_name": "T-WINDOWS-2012R2-{{isotime \"2006-01\"}}",
       "disk_size": 61440,
       "vnc_port_min": 5906,
       "vnc_port_max": 5906,
@@ -55,7 +55,7 @@
 	 "host": "{{user `vcenter_host`}}",
 	  "username": "{{ user `vcenter_username`}}",
 	  "password": "{{ user `vcenter_password`}}",
-          "vm_name": "T-WINDOWS-2012R2-{{isotime \"2006-01-02\"}}",
+          "vm_name": "T-WINDOWS-2012R2-{{isotime \"2006-01\"}}",
           "vm_folder": "_TEMPLATES",
           "vm_network": "LAN-ENVL1",
           "insecure": "true"
