@@ -42,8 +42,25 @@ Write-Output "Shutdown guest"
 Shutdown-VMGuest $vmName -Confirm:$false | Out-Null
 While ((get-vm $vmName).PowerState -ne "PoweredOff") { sleep 30 }
 Write-Output "Convert to template"
+
 #Convert to Template
+<#
+    This part will rotate the templates
+    1. Remove -old template
+    2. Rename template -> template-old
+    3. Set vmname -> template
+#>
+$ISOTIME = Get-Date -Format "yyyy-MM-dd"
+$TemplateName = $vmName.Replace("-$ISOTIME","")
+
+$OldTemplate = Get-Template -Name "$TemplateName-OLD" -ErrorAction SilentlyContinue
+if ($OldTemplate) { Remove-Template -Template $OldTemplate -DeletePermanently -Confirm:$false }
+$Template = Get-Template -Name "$TemplateName" -ErrorAction SilentlyContinue
+if($Template) { Set-Template -Template $Template -Name "$TemplateName-OLD" }
+#Rename template to template-old
 Set-VM $vmName -ToTemplate -Confirm:$false | Out-Null
+$NewTemplate = Get-Template -Name $VMName 
+if ($NewTemplate) { Set-Template -Template $NewTemplate -Name $TemplateName -}
 Write-Output "Conversion complete"
 #Disconnect from VIServer
 Disconnect-VIServer -Confirm:$false
