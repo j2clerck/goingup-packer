@@ -50,7 +50,7 @@ Write-Output "Convert to template"
     2. Rename template -> template-old
     3. Set vmname -> template
 #>
-$ISOTIME = Get-Date -Format "yyyy-MM-dd"
+$ISOTIME = Get-Date -Format "yyyy-MM"
 $TemplateName = $vmName.Replace("-$ISOTIME","")
 
 $OldTemplate = Get-Template -Name "$TemplateName-OLD" -ErrorAction SilentlyContinue
