@@ -60,7 +60,7 @@ if($Template) { Set-Template -Template $Template -Name "$TemplateName-OLD" }
 #Rename template to template-old
 Set-VM $vmName -ToTemplate -Confirm:$false | Out-Null
 $NewTemplate = Get-Template -Name $VMName 
-if ($NewTemplate) { Set-Template -Template $NewTemplate -Name $TemplateName -}
+if ($NewTemplate) { Set-Template -Template $NewTemplate -Name $TemplateName }
 Write-Output "Conversion complete"
 #Disconnect from VIServer
 Disconnect-VIServer -Confirm:$false
